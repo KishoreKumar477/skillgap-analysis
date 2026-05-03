@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+.vscode/
+mlruns/
+data/raw/
+src/_pycache__/
+src/app.py

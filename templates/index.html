@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillGap.AI — Know Your Gap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #080b0f;
+    --surface:   #0d1117;
+    --border:    #1c2333;
+    --text:      #e6edf3;
+    --muted:     #7d8590;
+    --accent:    #00d4ff;
+    --green:     #34d399;
+    --red:       #f87171;
+    --purple:    #a78bfa;
+    --amber:     #f59e0b;
+    --pink:      #f472b6;
+    --font-mono: 'Space Mono', monospace;
+    --font-sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid Background ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 2rem 3rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .logo span { color: var(--muted); }
+
+  .header-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    z-index: 10;
+    padding: 5rem 3rem 3rem;
+    max-width: 900px;
+  }
+
+  .hero-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .hero-tag::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 500px;
+  }
+
+  /* ── Main Layout ── */
+  main {
+    position: relative;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    min-height: 70vh;
+  }
+
+  /* ── Input Panel ── */
+  .input-panel {
+    border-right: 1px solid var(--border);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .panel-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Upload Zone */
+  .upload-zone {
+    border: 1px dashed var(--border);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.03);
+  }
+
+  .upload-zone input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .upload-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--muted);
+  }
+
+  .upload-text {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .upload-text strong { color: var(--accent); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    padding: 1rem;
+    resize: vertical;
+    min-height: 200px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+
+  /* Role Select */
+  .select-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237d8590' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  /* Analyze Button */
+  .btn-analyze {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 1rem 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-analyze:hover {
+    background: #33dcff;
+    transform: translateY(-1px);
+  }
+
+  .btn-analyze:active { transform: translateY(0); }
+
+  .btn-analyze.loading {
+    color: transparent;
+    pointer-events: none;
+  }
+
+  .btn-analyze.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--bg);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+  /* ── Results Panel ── */
+  .results-panel {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .results-empty {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  .results-empty .big-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  /* Prediction Card */
+  .prediction-card {
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s ease;
+  }
+
+  .prediction-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .prediction-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--card-color, var(--accent));
+  }
+
+  .pred-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .pred-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.3rem;
+  }
+
+  .pred-role {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .confidence-badge {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .confidence-sub {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* Role Bars */
+  .role-bars { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .role-bar-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 40px;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .role-bar-name {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .role-bar-track {
+    height: 3px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .role-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .role-bar-pct {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* Readiness */
+  .readiness-section { border: 1px solid var(--border); padding: 1.5rem; }
+
+  .readiness-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+  }
+
+  .readiness-score {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  .readiness-track {
+    height: 4px;
+    background: var(--border);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .readiness-fill {
+    height: 100%;
+    width: 0;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+  }
+
+  .skill-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .skill-col-title {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.75rem;
+  }
+
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+  .skill-tag {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+    letter-spacing: 0.05em;
+    border: 1px solid;
+  }
+
+  .skill-tag.present {
+    color: var(--green);
+    border-color: rgba(52,211,153,0.3);
+    background: rgba(52,211,153,0.05);
+  }
+
+  .skill-tag.missing {
+    color: var(--red);
+    border-color: rgba(248,113,113,0.3);
+    background: rgba(248,113,113,0.05);
+  }
+
+  /* Recommendations */
+  .recs-section { border: 1px solid var(--border); padding: 1.5rem; }
+
+  .rec-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+
+  .rec-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s;
+  }
+
+  .rec-item:hover { border-color: var(--accent); }
+
+  .rec-skill {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .rec-source {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+  }
+
+  .rec-link {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid rgba(0,212,255,0.3);
+    padding: 0.2rem 0.5rem;
+    transition: all 0.2s;
+  }
+
+  .rec-link:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* Detected Skills */
+  .detected-section { border: 1px solid var(--border); padding: 1.5rem; }
+
+  .detected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+
+  .detected-tag {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* File name indicator */
+  .file-indicator {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--green);
+    padding: 0.4rem 0.75rem;
+    border: 1px solid rgba(52,211,153,0.3);
+    background: rgba(52,211,153,0.05);
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .file-indicator.visible { display: flex; }
+
+  /* Error */
+  .error-msg {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--red);
+    padding: 1rem;
+    border: 1px solid rgba(248,113,113,0.3);
+    background: rgba(248,113,113,0.05);
+    display: none;
+  }
+
+  .error-msg.visible { display: block; }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 10;
+    padding: 1.5rem 3rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-text {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-stats {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .footer-stat {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .footer-stat span { color: var(--accent); }
+
+  @media (max-width: 768px) {
+    main { grid-template-columns: 1fr; }
+    .input-panel { border-right: none; border-bottom: 1px solid var(--border); }
+    header, .hero, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .input-panel, .results-panel { padding: 1.5rem; }
+    .skill-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">SKILL<span>GAP</span>.AI</div>
+  <div class="header-tag">ML-POWERED CAREER INTELLIGENCE</div>
+</header>
+
+<section class="hero">
+  <div class="hero-tag">v1.0 — BUILT WITH XGBOOST + SHAP</div>
+  <h1>Know your <em>exact</em> skill gap.</h1>
+  <p class="hero-sub">
+    Paste your resume or upload a PDF. Our model — trained on 1,570 real
+    LinkedIn job postings — predicts your role fit and shows you precisely
+    which skills to acquire next.
+  </p>
+</section>
+
+<main>
+  <!-- Input Panel -->
+  <div class="input-panel">
+    <div class="panel-label">// INPUT — RESUME OR JOB DESCRIPTION</div>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="pdfInput" accept=".pdf">
+      <div class="upload-icon">⬆</div>
+      <div class="upload-text">
+        <strong>Upload PDF</strong> — drag & drop or click
+      </div>
+    </div>
+
+    <div class="file-indicator" id="fileIndicator">
+      <span>◉</span>
+      <span id="fileName"></span>
+    </div>
+
+    <div class="divider">OR PASTE TEXT</div>
+
+    <textarea
+      id="resumeText"
+      placeholder="// paste resume or job description here...
+// skills, experience, tools, technologies..."></textarea>
+
+    <div>
+      <div class="select-label">// TARGET ROLE</div>
+      <select id="targetRole">
+        {% for role in roles %}
+        <option value="{{ role }}">
+          {{ role_info[role]['icon'] }} {{ role_info[role]['label'] }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">
+      RUN ANALYSIS →
+    </button>
+  </div>
+
+  <!-- Results Panel -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="results-empty" id="emptyState">
+      <div class="big-icon">◈</div>
+      <div>AWAITING INPUT</div>
+      <div style="opacity:0.5">paste resume → run analysis → see results</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-text">SKILLGAP.AI — ML CAREER INTELLIGENCE</div>
+  <div class="footer-stats">
+    <div class="footer-stat">TRAINED ON <span>1,570</span> JOB POSTINGS</div>
+    <div class="footer-stat">ACCURACY <span>73%</span></div>
+    <div class="footer-stat">SKILLS TRACKED <span>68</span></div>
+  </div>
+</footer>
+
+<script>
+const ROLE_COLORS = {
+  data_analyst:   '#00d4ff',
+  data_scientist: '#a78bfa',
+  data_engineer:  '#34d399',
+  ml_engineer:    '#f59e0b',
+  ai_engineer:    '#f472b6',
+  mlops_engineer: '#60a5fa',
+};
+
+// PDF drag & drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    document.getElementById('pdfInput').files = e.dataTransfer.files;
+    showFile(file.name);
+  }
+});
+
+document.getElementById('pdfInput').addEventListener('change', e => {
+  if (e.target.files[0]) showFile(e.target.files[0].name);
+});
+
+function showFile(name) {
+  const ind = document.getElementById('fileIndicator');
+  document.getElementById('fileName').textContent = name;
+  ind.classList.add('visible');
+  document.getElementById('resumeText').value = '';
+}
+
+async function analyze() {
+  const btn = document.getElementById('analyzeBtn');
+  const err = document.getElementById('errorMsg');
+  err.classList.remove('visible');
+
+  const text = document.getElementById('resumeText').value;
+  const pdfFile = document.getElementById('pdfInput').files[0];
+  const targetRole = document.getElementById('targetRole').value;
+
+  if (!text.trim() && !pdfFile) {
+    err.textContent = 'ERROR: provide resume text or upload a PDF';
+    err.classList.add('visible');
+    return;
+  }
+
+  btn.classList.add('loading');
+
+  const formData = new FormData();
+  if (pdfFile) {
+    formData.append('pdf', pdfFile);
+  } else {
+    formData.append('resume_text', text);
+  }
+  formData.append('target_role', targetRole);
+
+  try {
+    const res = await fetch('/analyze', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    renderResults(data);
+  } catch(e) {
+    err.textContent = 'ERROR: ' + e.message;
+    err.classList.add('visible');
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+function renderResults(d) {
+  const panel = document.getElementById('resultsPanel');
+  const color = ROLE_COLORS[d.predicted_role] || '#00d4ff';
+
+  const sortedRoles = Object.entries(d.role_scores)
+    .sort((a, b) => b[1] - a[1]);
+
+  const roleBars = sortedRoles.map(([role, pct]) => `
+    <div class="role-bar-row">
+      <div class="role-bar-name">${role.replace(/_/g,' ')}</div>
+      <div class="role-bar-track">
+        <div class="role-bar-fill"
+             style="background:${ROLE_COLORS[role]||'#00d4ff'}"
+             data-width="${pct}"></div>
+      </div>
+      <div class="role-bar-pct">${pct}%</div>
+    </div>
+  `).join('');
+
+  const presentTags = d.present_skills.map(s =>
+    `<span class="skill-tag present">✓ ${s.replace(/_/g,' ')}</span>`
+  ).join('');
+
+  const missingTags = d.missing_skills.map(s =>
+    `<span class="skill-tag missing">✗ ${s.replace(/_/g,' ')}</span>`
+  ).join('');
+
+  const recItems = d.recommendations.map(r => `
+    <div class="rec-item">
+      <div>
+        <div class="rec-skill">${r.skill}</div>
+        <div class="rec-source">${r.source}</div>
+      </div>
+      <a class="rec-link" href="${r.url}" target="_blank">LEARN →</a>
+    </div>
+  `).join('');
+
+  const detectedTags = d.detected_skills.map(s =>
+    `<span class="detected-tag">${s.replace(/_/g,' ')}</span>`
+  ).join('');
+
+  const readinessColor = d.readiness >= 80 ? 'var(--green)'
+                       : d.readiness >= 50 ? 'var(--amber)'
+                       : 'var(--red)';
+
+  panel.innerHTML = `
+    <div class="prediction-card" id="predCard" style="--card-color:${color}">
+      <div class="pred-header">
+        <div>
+          <div class="pred-label">// PREDICTED ROLE</div>
+          <div class="pred-role" style="color:${color}">
+            ${d.predicted_role.replace(/_/g,' ').toUpperCase()}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="confidence-badge">${d.confidence}%</div>
+          <div class="confidence-sub">CONFIDENCE</div>
+        </div>
+      </div>
+      <div class="role-bars">${roleBars}</div>
+    </div>
+
+    <div class="readiness-section">
+      <div class="readiness-header">
+        <div class="section-title">
+          // READINESS FOR ${d.target_role.replace(/_/g,' ').toUpperCase()}
+        </div>
+        <div class="readiness-score" style="color:${readinessColor}">
+          ${d.readiness}%
+        </div>
+      </div>
+      <div class="readiness-track">
+        <div class="readiness-fill"
+             style="background:${readinessColor}"
+             data-width="${d.readiness}"></div>
+      </div>
+      <div class="skill-grid">
+        <div>
+          <div class="skill-col-title" style="color:var(--green)">
+            ✓ YOU HAVE
+          </div>
+          <div class="skill-tags">${presentTags || '<span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">none detected</span>'}</div>
+        </div>
+        <div>
+          <div class="skill-col-title" style="color:var(--red)">
+            ✗ TO ACQUIRE
+          </div>
+          <div class="skill-tags">${missingTags || '<span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--green)">all core skills present!</span>'}</div>
+        </div>
+      </div>
+    </div>
+
+    ${recItems ? `
+    <div class="recs-section">
+      <div class="section-title">// RECOMMENDED LEARNING PATH</div>
+      <div class="rec-list">${recItems}</div>
+    </div>` : ''}
+
+    <div class="detected-section">
+      <div class="section-title">
+        // ALL DETECTED SKILLS (${d.detected_skills.length})
+      </div>
+      <div class="detected-tags">${detectedTags}</div>
+    </div>
+  `;
+
+  // Animate in
+  requestAnimationFrame(() => {
+    document.getElementById('predCard').classList.add('visible');
+
+    // Animate bars
+    document.querySelectorAll('.role-bar-fill').forEach(el => {
+      setTimeout(() => el.style.width = el.dataset.width + '%', 100);
+    });
+
+    document.querySelectorAll('.readiness-fill').forEach(el => {
+      setTimeout(() => el.style.width = el.dataset.width + '%', 200);
+    });
+  });
+}
+</script>
+</body>
+</html>
