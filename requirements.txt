@@ -119,6 +119,7 @@ rich==15.0.0
 rpds-py==0.30.0
 scikit-learn==1.8.0
 scipy==1.17.1
+spacy
 seaborn==0.13.2
 setuptools==82.0.1
 shap==0.51.0
