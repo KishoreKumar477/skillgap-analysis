@@ -260,13 +260,12 @@ SHAP provides per-prediction explanations, not just global feature importance. T
 ## Author
 
 **Kishore Kumar**
-First-year AI & Data Science student at Kumaraguru College of Technology (KCT)
-Mahatma Gandhi Merit Scholarship Recipient
+Freshman, Artificial intelligence student 
 
 Building toward Applied AI Engineering with RAG systems and agentic AI as core specialization.
 
-[![Linkedin](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)]([https://linkedin.com/in/YOUR_LINKEDIN](https://www.linkedin.com/in/kishore-kumar-77a280387/))
-[![Github](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github)]([https://github.com/YOUR_USERNAME](https://github.com/KishoreKumar477))
+[![Linkedin](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)]([https://www.linkedin.com/in/kishore-kumar-77a280387/]))
+[![Github](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github)]([https://github.com/KishoreKumar477]))
 
 ---
 
