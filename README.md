@@ -264,16 +264,12 @@ Freshman, Artificial intelligence student
 
 Building toward Applied AI Engineering with RAG systems and agentic AI as core specialization.
 
-[![Linkedin](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)]([https://www.linkedin.com/in/kishore-kumar-77a280387/]))
-[![Github](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github)]([https://github.com/KishoreKumar477]))
+[![Linkedin](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/kishore-kumar-77a280387/)
+[![Github](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github)](https://github.com/KishoreKumar477)
 
 ---
 
-## License
 
-MIT License — free to use, modify, and distribute with attribution.
-
----
 
 <p align="center">
   Built with Python · XGBoost · spaCy · Flask · SHAP · MLflow
