@@ -2,6 +2,8 @@
 
 > Know your exact skill gap. Trained on 1,570 real LinkedIn job postings.
 
+🔗 **Live Demo → [skillgap-analysis-u6xe.onrender.com](https://skillgap-analysis-u6xe.onrender.com/)**
+
 ![Demo](demo.gif)
 
 ---
