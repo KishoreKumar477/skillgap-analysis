@@ -265,8 +265,8 @@ Mahatma Gandhi Merit Scholarship Recipient
 
 Building toward Applied AI Engineering with RAG systems and agentic AI as core specialization.
 
-[![https://www.linkedin.com/in/kishore-kumar-77a280387/](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://linkedin.com/in/YOUR_LINKEDIN)
-[![https://github.com/KishoreKumar477](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github)](https://github.com/YOUR_USERNAME)
+[![Linkedin](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)]([https://linkedin.com/in/YOUR_LINKEDIN](https://www.linkedin.com/in/kishore-kumar-77a280387/))
+[![Github](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github)]([https://github.com/YOUR_USERNAME](https://github.com/KishoreKumar477))
 
 ---
 
