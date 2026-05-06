@@ -264,6 +264,16 @@ SHAP provides per-prediction explanations, not just global feature importance. T
 **Kishore Kumar**
 Freshman, Artificial intelligence student 
 
+This is the final project of a structured ML learning path — covering data 
+collection, feature engineering, model training, explainability, and production 
+deployment entirely from scratch. No boilerplate. No tutorials followed 
+step-by-step. Just a real problem, real data, and a working product.
+
+Built in one week. Deployed at:
+
+🔗 **[skillgap-analysis-u6xe.onrender.com](https://skillgap-analysis-u6xe.onrender.com/)**
+
+
 Building toward Applied AI Engineering with RAG systems and agentic AI as core specialization.
 
 [![Linkedin](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/kishore-kumar-77a280387/)
