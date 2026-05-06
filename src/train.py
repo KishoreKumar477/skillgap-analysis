@@ -11,7 +11,7 @@ import mlflow.xgboost
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# ── Load Data ─────────────────────────────────────────────────────
+#  Load Data 
 df = pd.read_csv(r"/Users/kishorekumar/Desktop/skillgap analysis/data/processed/ml_job_features.csv")
 
 SKILL_COLS = [c for c in df.columns if c not in [
@@ -22,12 +22,12 @@ SKILL_COLS = [c for c in df.columns if c not in [
 X = df[SKILL_COLS]
 y = df["role_category"]
 
-# ── Encode Labels ─────────────────────────────────────────────────
+#  Encode Labels 
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 print("Classes:", le.classes_)
 
-# ── Train/Test Split ──────────────────────────────────────────────
+# Train/Test Split 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
 )
@@ -36,7 +36,7 @@ print(f"Train: {len(X_train)} | Test: {len(X_test)}")
 # Compute weights to balance classes
 sample_weights = compute_sample_weight("balanced", y_train)
 
-# ── MLflow Tracking ───────────────────────────────────────────────
+#  MLflow Tracking 
 mlflow.set_experiment("skill-gap-analyzer")
 
 with mlflow.start_run(run_name="xgboost-baseline"):
@@ -61,7 +61,7 @@ with mlflow.start_run(run_name="xgboost-baseline"):
         verbose=50
     )
 
-    # ── Evaluate ──────────────────────────────────────────────────
+    # Evaluate 
     y_pred = model.predict(X_test)
     y_pred_labels = le.inverse_transform(y_pred)
     y_test_labels = le.inverse_transform(y_test)
@@ -70,7 +70,7 @@ with mlflow.start_run(run_name="xgboost-baseline"):
     print("\nClassification Report:")
     print(report)
 
-    # ── Log to MLflow ─────────────────────────────────────────────
+    #  Log to MLflow
     mlflow.log_params(params)
     
     accuracy = (y_pred == y_test).mean()
@@ -79,7 +79,7 @@ with mlflow.start_run(run_name="xgboost-baseline"):
 
     mlflow.xgboost.log_model(model, "model")
 
-    # ── Confusion Matrix ──────────────────────────────────────────
+    #  Confusion Matrix 
     cm = confusion_matrix(y_test_labels, y_pred_labels,
                           labels=le.classes_)
     plt.figure(figsize=(8, 6))
@@ -95,7 +95,7 @@ with mlflow.start_run(run_name="xgboost-baseline"):
     mlflow.log_artifact("/Users/kishorekumar/Desktop/skillgap analysis/data/processed/confusion_matrix.png")
     print("Saved confusion_matrix.png")
 
-    # ── SHAP Explainability ───────────────────────────────────────
+    # SHAP Explainability 
     print("\nComputing SHAP values...")
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_test)
@@ -117,7 +117,7 @@ with mlflow.start_run(run_name="xgboost-baseline"):
     mlflow.log_artifact(r"/Users/kishorekumar/Desktop/skillgap analysis/data/processed/shap_summary.png")
     print("Saved shap_summary.png")
 
-    # ── Save Model Artifacts ──────────────────────────────────────
+    #  Save Model Artifacts 
     model.save_model(r"/Users/kishorekumar/Desktop/skillgap analysis/data/processed/xgb_model.json")
     
     import pickle
