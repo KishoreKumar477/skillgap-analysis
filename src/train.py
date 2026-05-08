@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 #  Load Data 
-df = pd.read_csv(r"/Users/kishorekumar/Desktop/skillgap analysis/data/processed/ml_job_features.csv")
+df = pd.read_csv(r"/data/processed/ml_job_features.csv")
 
 SKILL_COLS = [c for c in df.columns if c not in [
     "job_id", "job_title", "company_name",
@@ -91,8 +91,8 @@ with mlflow.start_run(run_name="xgboost-baseline"):
     plt.ylabel("Actual")
     plt.xlabel("Predicted")
     plt.tight_layout()
-    plt.savefig("/Users/kishorekumar/Desktop/skillgap analysis/data/processed/confusion_matrix.png")
-    mlflow.log_artifact("/Users/kishorekumar/Desktop/skillgap analysis/data/processed/confusion_matrix.png")
+    plt.savefig("/data/processed/confusion_matrix.png")
+    mlflow.log_artifact("/data/processed/confusion_matrix.png")
     print("Saved confusion_matrix.png")
 
     # SHAP Explainability 
@@ -113,15 +113,15 @@ with mlflow.start_run(run_name="xgboost-baseline"):
     plt.title("SHAP — Top skills driving 'data_scientist' prediction")
 
     plt.tight_layout()
-    plt.savefig(r"/Users/kishorekumar/Desktop/skillgap analysis/data/processed/shap_summary.png", dpi=150, bbox_inches="tight")
-    mlflow.log_artifact(r"/Users/kishorekumar/Desktop/skillgap analysis/data/processed/shap_summary.png")
+    plt.savefig(r"/data/processed/shap_summary.png", dpi=150, bbox_inches="tight")
+    mlflow.log_artifact(r"/data/processed/shap_summary.png")
     print("Saved shap_summary.png")
 
     #  Save Model Artifacts 
-    model.save_model(r"/Users/kishorekumar/Desktop/skillgap analysis/data/processed/xgb_model.json")
+    model.save_model(r"/data/processed/xgb_model.json")
     
     import pickle
-    with open("/Users/kishorekumar/Desktop/skillgap analysis/data/processed/label_encoder.pkl", "wb") as f:
+    with open("/data/processed/label_encoder.pkl", "wb") as f:
         pickle.dump(le, f)
 
     print("\nAll artifacts saved.")
