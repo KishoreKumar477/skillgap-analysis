@@ -189,12 +189,29 @@ for skill_key, phrases in SKILLS.items():
     patterns = [nlp.make_doc(p.lower()) for p in phrases]
     matcher.add(skill_key, patterns)
 
+NEGATION_PHRASES = [
+    "no experience with", "not familiar with",
+    "no knowledge of", "without", "lack of",
+    "no background in", "not proficient in"
+]
+
 def extract_skills_from_text(text):
     doc = nlp.make_doc(text.lower()[:50000])
     matches = matcher(doc)
     found = set()
-    for match_id, _, _ in matches:
-        found.add(nlp.vocab.strings[match_id])
+    
+    for match_id, start, end in matches:
+        skill = nlp.vocab.strings[match_id]
+        
+        # Check 5 tokens before match for negation
+        context_start = max(0, start - 5)
+        context = text.lower()[
+            doc[context_start].idx:doc[start].idx
+        ]
+        
+        if not any(neg in context for neg in NEGATION_PHRASES):
+            found.add(skill)
+    
     return found
 
 def text_to_vector(text):
