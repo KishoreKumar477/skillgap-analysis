@@ -72,17 +72,9 @@ with mlflow.start_run(run_name="xgboost-baseline"):
     print("\nClassification Report:")
     print(report)
 
-    cv_scores = cross_val_score(
-    model, X, y_encoded,
-    cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
-    scoring='accuracy'
-    )
-    print(f"CV Accuracy: {cv_scores.mean():.3f} ± {cv_scores.std():.3f}")
-    
+   
     #  Log to MLflow
     mlflow.log_params(params)
-    mlflow.log_metric("cv_accuracy_mean", cv_scores.mean())
-    mlflow.log_metric("cv_accuracy_std", cv_scores.std())
     
     accuracy = (y_pred == y_test).mean()
     mlflow.log_metric("accuracy", accuracy)
