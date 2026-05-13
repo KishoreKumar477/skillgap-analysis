@@ -782,6 +782,22 @@ async function analyze() {
 
 function renderResults(d) {
   const panel = document.getElementById('resultsPanel');
+  
+  const warningHTML = d.warning ? `
+    <div style="
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--amber);
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(245,158,11,0.3);
+      background: rgba(245,158,11,0.05);
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+    ">
+      ⚠ ${d.warning}
+    </div>
+  ` : '';
+  
   const color = ROLE_COLORS[d.predicted_role] || '#00d4ff';
 
   const sortedRoles = Object.entries(d.role_scores)
@@ -826,6 +842,7 @@ function renderResults(d) {
                        : 'var(--red)';
 
   panel.innerHTML = `
+  ${warningHTML}
     <div class="prediction-card" id="predCard" style="--card-color:${color}">
       <div class="pred-header">
         <div>
