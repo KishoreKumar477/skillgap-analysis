@@ -218,6 +218,19 @@ def text_to_vector(text):
     found = extract_skills_from_text(text)
     return np.array([int(s in found) for s in SKILL_COLS]), found
 
+def assess_input_quality(text, found_skills):
+    word_count = len(text.split())
+    skill_count = len(found_skills)
+    
+    if word_count < 50:
+        return "too_short", "Input too short — paste full resume for accurate results"
+    if skill_count == 0:
+        return "no_skills", "No technical skills detected — add specific tools and technologies"
+    if skill_count < 3:
+        return "low_signal", "Only {} skills detected — results may be unreliable".format(skill_count)
+    
+    return "ok", None
+    
 # ── Routes ────────────────────────────────────────────────────────
 @app.route("/")
 def index():
@@ -242,6 +255,7 @@ def analyze():
             return jsonify({"error": "No text provided"}), 400
 
         vector, found_skills = text_to_vector(text)
+        input_quality, warning = assess_input_quality(text, found_skills)
         proba = model.predict_proba([vector])[0]
         pred_idx = int(np.argmax(proba))
         pred_role = le.classes_[pred_idx]
@@ -280,6 +294,8 @@ def analyze():
             "detected_skills": detected,
             "recommendations": recommendations,
             "role_info":       ROLE_INFO,
+            "Input_quality":   input_quality, 
+            "warning":         warning
         })
     except Exception as e:
         print(f"DEBUG ERROR: {e}") 
