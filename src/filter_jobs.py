@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("/Users/kishorekumar/Desktop/skillgap analysis/data/raw/postings.csv")
+df = pd.read_csv("/data/raw/postings.csv")
 
 # ML/Data role keywords for title filtering
 ML_TITLES = [
@@ -63,4 +63,4 @@ print(ml_df["experience_level"].value_counts())
 print(f"\nSample description (first 300 chars):")
 print(ml_df["description"].iloc[0][:300])
 
-ml_df.to_csv("/Users/kishorekumar/Desktop/skillgap analysis/data/raw/ml_jobs.csv", index=False)
+ml_df.to_csv("/data/raw/ml_jobs.csv", index=False)
