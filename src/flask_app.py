@@ -133,7 +133,7 @@ SKILLS = {
     "stakeholder": ["stakeholder management", "stakeholder", "business stakeholder"],
 }
 
-SKILL_COLS = list(SKILLS.keys())
+
 
 ROLE_INFO = {
     "data_analyst":   {"icon": "◈", "label": "Data Analyst",   "color": "#00d4ff"},
