@@ -1,19 +1,21 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+import os
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.utils.class_weight import compute_sample_weight
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import StratifiedKFold, cross_val_score
 import xgboost as xgb
 import shap
 import mlflow
 import mlflow.xgboost
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pickle
 
-#  Load Data 
-df = pd.read_csv(r"/data/processed/ml_job_features.csv")
+# ── Load Data ─────────────────────────────────────────────────────
+
+df = pd.read_csv("data/processed/ml_job_features.csv")
 
 SKILL_COLS = [c for c in df.columns if c not in [
     "job_id", "job_title", "company_name",
@@ -23,35 +25,35 @@ SKILL_COLS = [c for c in df.columns if c not in [
 X = df[SKILL_COLS]
 y = df["role_category"]
 
-#  Encode Labels 
+# ── Encode Labels ─────────────────────────────────────────────────
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 print("Classes:", le.classes_)
 
-# Train/Test Split 
+# ── Train/Test Split ──────────────────────────────────────────────
 X_train, X_test, y_train, y_test = train_test_split(
     X, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
 )
 print(f"Train: {len(X_train)} | Test: {len(X_test)}")
 
-# Compute weights to balance classes
+# ── Class Weights ─────────────────────────────────────────────────
 sample_weights = compute_sample_weight("balanced", y_train)
 
-#  MLflow Tracking 
+# ── MLflow Tracking ───────────────────────────────────────────────
 mlflow.set_experiment("skill-gap-analyzer")
 
 with mlflow.start_run(run_name="xgboost-baseline"):
 
+
+
     params = {
-        "n_estimators": 200,
-        "max_depth": 6,
-        "learning_rate": 0.1,
-        "subsample": 0.8,
+        "n_estimators":     200,
+        "max_depth":        6,
+        "learning_rate":    0.1,
+        "subsample":        0.8,
         "colsample_bytree": 0.8,
-        "use_label_encoder": False,
-        "eval_metric": "mlogloss",
-        "random_state": 42,
-        "early_stopping_rounds": 20
+        "eval_metric":      "mlogloss",
+        "random_state":     42,
     }
 
     model = xgb.XGBClassifier(**params)
@@ -59,12 +61,12 @@ with mlflow.start_run(run_name="xgboost-baseline"):
         X_train, y_train,
         sample_weight=sample_weights,
         eval_set=[(X_test, y_test)],
+        early_stopping_rounds=20,   # CHANGED: moved here from params dict
         verbose=50
     )
-    
-    
-    # Evaluate 
-    y_pred = model.predict(X_test)
+
+    # ── Evaluate ──────────────────────────────────────────────────
+    y_pred        = model.predict(X_test)
     y_pred_labels = le.inverse_transform(y_pred)
     y_test_labels = le.inverse_transform(y_test)
 
@@ -72,19 +74,32 @@ with mlflow.start_run(run_name="xgboost-baseline"):
     print("\nClassification Report:")
     print(report)
 
-   
-    #  Log to MLflow
+    # ── Cross Validation ──────────────────────────────────────────
+
+
+    print("\nRunning 5-fold cross validation...")
+    cv_model = xgb.XGBClassifier(**params)
+    cv_scores = cross_val_score(
+        cv_model, X, y_encoded,
+        cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
+        scoring="accuracy"
+    )
+    print(f"CV Accuracy: {cv_scores.mean():.3f} ± {cv_scores.std():.3f}")
+
+    # ── Log to MLflow ─────────────────────────────────────────────
     mlflow.log_params(params)
-    
-    accuracy = (y_pred == y_test).mean()
-    mlflow.log_metric("accuracy", accuracy)
+
+    accuracy = float((y_pred == y_test).mean())
+    mlflow.log_metric("accuracy",        accuracy)
+    mlflow.log_metric("cv_accuracy_mean", float(cv_scores.mean())) 
+    mlflow.log_metric("cv_accuracy_std",  float(cv_scores.std()))   
     print(f"Accuracy: {accuracy:.4f}")
+    print(f"CV Accuracy: {cv_scores.mean():.3f} ± {cv_scores.std():.3f}")
 
     mlflow.xgboost.log_model(model, "model")
 
-    #  Confusion Matrix 
-    cm = confusion_matrix(y_test_labels, y_pred_labels,
-                          labels=le.classes_)
+    # ── Confusion Matrix ──────────────────────────────────────────
+    cm = confusion_matrix(y_test_labels, y_pred_labels, labels=le.classes_)
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt="d",
                 xticklabels=le.classes_,
@@ -94,37 +109,36 @@ with mlflow.start_run(run_name="xgboost-baseline"):
     plt.ylabel("Actual")
     plt.xlabel("Predicted")
     plt.tight_layout()
-    plt.savefig("/data/processed/confusion_matrix.png")
-    mlflow.log_artifact("/data/processed/confusion_matrix.png")
+
+    plt.savefig("data/processed/confusion_matrix.png")
+    mlflow.log_artifact("data/processed/confusion_matrix.png")
     print("Saved confusion_matrix.png")
 
-    # SHAP Explainability 
+    # ── SHAP Explainability ───────────────────────────────────────
     print("\nComputing SHAP values...")
-    explainer = shap.TreeExplainer(model)
+    explainer  = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_test)
 
-    # Summary plot — top skills driving predictions
     plt.figure(figsize=(10, 8))
     shap.summary_plot(
-        shap_values[:,:,3],
-        X_test,
+        shap_values[:, :, 3],   
         feature_names=SKILL_COLS,
         max_display=20,
         show=False,
         plot_type="dot"
     )
     plt.title("SHAP — Top skills driving 'data_scientist' prediction")
-
     plt.tight_layout()
-    plt.savefig(r"/data/processed/shap_summary.png", dpi=150, bbox_inches="tight")
-    mlflow.log_artifact(r"/data/processed/shap_summary.png")
+    # CHANGED: relative path
+    plt.savefig("data/processed/shap_summary.png", dpi=150, bbox_inches="tight")
+    mlflow.log_artifact("data/processed/shap_summary.png")
     print("Saved shap_summary.png")
 
-    #  Save Model Artifacts 
-    model.save_model(r"/data/processed/xgb_model.json")
-    
-    import pickle
-    with open("/data/processed/label_encoder.pkl", "wb") as f:
+    # ── Save Artifacts ────────────────────────────────────────────
+
+    model.save_model("data/processed/xgb_model.json")
+
+    with open("data/processed/label_encoder.pkl", "wb") as f:
         pickle.dump(le, f)
 
     print("\nAll artifacts saved.")
