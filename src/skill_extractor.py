@@ -5,94 +5,182 @@ from spacy.matcher import PhraseMatcher
 nlp = spacy.load("en_core_web_sm")
 
 # ── Master Skills List ─────────────────────────────────────────────
+# Each key must exactly match what train.py and flask_app.py expect
 SKILLS = {
     # Languages
-    "python": ["python"],
-    "sql": ["sql"],
-    "r": ["r programming", " r ,", " r."],
+    "python": ["python", "python3", "python 3"],
+    "sql": ["sql", "mysql", "t-sql", "pl/sql"],         
+    "r": ["r programming", "r language"],                  
     "scala": ["scala"],
-    "java": ["java"],
-    "javascript": ["javascript", "js"],
+    "java": ["java", "java 8", "java 11"],                
+    "javascript": ["javascript", "js", "node.js", "nodejs"], 
 
     # ML Frameworks
-    "scikit_learn": ["scikit-learn", "sklearn"],
-    "pytorch": ["pytorch"],
-    "tensorflow": ["tensorflow"],
+    "scikit_learn": ["scikit-learn", "sklearn", "scikit learn", "sk-learn"],  
+    "pytorch": ["pytorch", "torch", "py torch"],         
+    "tensorflow": ["tensorflow", "tf", "tensor flow"],
     "keras": ["keras"],
-    "xgboost": ["xgboost"],
-    "lightgbm": ["lightgbm"],
+    "xgboost": ["xgboost", "xgb"],                       
+    "lightgbm": ["lightgbm", "lgbm"],                   
     "catboost": ["catboost"],
-    "huggingface": ["huggingface", "hugging face", "transformers"],
+    "huggingface": [                                      
+        "huggingface", "hugging face", "transformers",
+        "bert", "gpt", "roberta", "hf transformers"
+    ],
 
     # ML Concepts
-    "machine_learning": ["machine learning"],
-    "deep_learning": ["deep learning"],
-    "nlp": ["nlp", "natural language processing"],
-    "computer_vision": ["computer vision"],
-    "llm": ["llm", "large language model"],
-    "rag": ["rag", "retrieval augmented generation"],
-    "feature_engineering": ["feature engineering"],
-    "model_deployment": ["model deployment", "model serving"],
-    "classification": ["classification"],
-    "regression": ["regression"],
-    "clustering": ["clustering"],
-    "time_series": ["time series", "time-series"],
-    "recommendation": ["recommendation system", "recommender"],
-    "reinforcement_learning": ["reinforcement learning"],
-    "generative_ai": ["generative ai", "gen ai", "genai"],
+    "machine_learning": [                                 
+        "machine learning", "ml", "predictive modeling",
+        "predictive modelling", "statistical learning"
+    ],
+    "deep_learning": [                                    
+        "deep learning", "neural network", "neural networks",
+        "ann", "cnn", "rnn", "lstm", "convolutional network",
+        "recurrent network"
+    ],
+    "nlp": [                                              
+        "nlp", "natural language processing", "text mining",
+        "sentiment analysis", "named entity recognition",
+        "ner", "text analytics", "natural language understanding"
+    ],
+    "computer_vision": [                                  
+        "computer vision", "image recognition",
+        "object detection", "image classification",
+        "image processing"
+    ],
+    "llm": [                                              
+        "llm", "large language model", "large language models",
+        "llms", "gpt-4", "gpt4", "claude", "gemini", "mistral"
+    ],
+    "rag": [                                              
+        "rag", "retrieval augmented generation",
+        "retrieval-augmented", "vector search", "semantic search"
+    ],
+    "feature_engineering": [
+        "feature engineering", "feature extraction", "feature selection",
+        "feature importance"                              
+    ],
+    "model_deployment": [
+        "model deployment", "model serving", "model inference",
+        "production ml", "ml deployment"                 
+    ],
+    "classification": ["classification", "classifier"],  
+    "regression": [
+        "regression", "linear regression", "logistic regression"  
+    ],
+    "clustering": [
+        "clustering", "k-means", "kmeans",
+        "hierarchical clustering", "dbscan"              
+    ],
+    "time_series": [
+        "time series", "time-series", "forecasting",
+        "demand forecasting", "arima", "prophet"         
+    ],
+    "recommendation": [
+        "recommendation system", "recommender system",
+        "recommender", "collaborative filtering",
+        "content-based filtering"                        
+    ],
+    "reinforcement_learning": [
+        "reinforcement learning", "rl", "deep rl",
+        "q-learning", "reward function"                  
+    ],
+    "generative_ai": [
+        "generative ai", "gen ai", "genai",
+        "generative model", "diffusion model",
+        "stable diffusion"                               
+    ],
 
     # Data Engineering
-    "spark": ["apache spark", "pyspark", "spark"],
-    "kafka": ["kafka", "apache kafka"],
+    "spark": [
+        "apache spark", "pyspark", "spark",
+        "spark sql", "spark streaming"                   
+    ],
+    "kafka": ["kafka", "apache kafka", "kafka streaming"],  
     "airflow": ["airflow", "apache airflow"],
-    "dbt": ["dbt"],
-    "etl": ["etl", "elt"],
-    "data_pipeline": ["data pipeline"],
-    "data_warehouse": ["data warehouse"],
-    "data_lake": ["data lake"],
+    "dbt": ["dbt", "data build tool"],                   
+    "etl": ["etl", "elt", "data ingestion", "data integration"],  
+    "data_pipeline": ["data pipeline", "data pipelines", "pipeline development"],  
+    "data_warehouse": [
+        "data warehouse", "data warehousing", "dwh", "data mart"  
+    ],
+    "data_lake": ["data lake", "data lakehouse", "delta lake"],  
 
     # Databases
-    "postgresql": ["postgresql", "postgres"],
-    "mysql": ["mysql"],
-    "mongodb": ["mongodb"],
+    "postgresql": ["postgresql", "postgres", "psql"],    
+    "mysql": ["mysql", "mariadb"],                       
+    "mongodb": ["mongodb", "mongo"],                     
     "redis": ["redis"],
     "snowflake": ["snowflake"],
-    "bigquery": ["bigquery", "big query"],
-    "redshift": ["redshift"],
-    "elasticsearch": ["elasticsearch"],
-    "pinecone": ["pinecone"],
+    "bigquery": ["bigquery", "big query", "google bigquery"],  
+    "redshift": ["redshift", "amazon redshift"],        
+    "elasticsearch": ["elasticsearch", "elastic search", "opensearch"],  
+    "pinecone": ["pinecone", "vector database", "vector db"],  
 
     # Cloud
-    "aws": ["aws", "amazon web services"],
-    "gcp": ["gcp", "google cloud"],
-    "azure": ["azure", "microsoft azure"],
+    "aws": [
+        "aws", "amazon web services",
+        "sagemaker", "s3", "ec2", "lambda", "glue"      
+    ],
+    "gcp": [
+        "gcp", "google cloud", "google cloud platform",
+        "vertex ai", "dataflow", "cloud run"             
+    ],
+    "azure": [
+        "azure", "microsoft azure", "azure ml",
+        "azure databricks", "azure synapse"              
+    ],
 
     # MLOps & DevOps
-    "docker": ["docker"],
-    "kubernetes": ["kubernetes", "k8s"],
-    "mlflow": ["mlflow"],
+    "docker": [
+        "docker", "dockerfile", "containerization", "container"  
+    ],
+    "kubernetes": ["kubernetes", "k8s", "kubectl", "helm"],  
+    "mlflow": ["mlflow", "ml flow"],                     
     "kubeflow": ["kubeflow"],
-    "git": ["git", "github"],
-    "cicd": ["ci/cd", "cicd", "continuous integration"],
+    "git": ["git", "github", "gitlab", "version control"],  
+    "cicd": [
+        "ci/cd", "cicd", "continuous integration",
+        "continuous deployment", "continuous delivery",
+        "jenkins", "github actions", "gitlab ci"         
+    ],
 
     # Visualization
     "tableau": ["tableau"],
-    "power_bi": ["power bi", "powerbi"],
+    "power_bi": ["power bi", "powerbi", "microsoft power bi"],  
     "matplotlib": ["matplotlib"],
     "seaborn": ["seaborn"],
-    "plotly": ["plotly"],
+    "plotly": ["plotly", "plotly dash", "dash"],         
 
     # Stats & Math
-    "statistics": ["statistics", "statistical"],
-    "probability": ["probability"],
-    "linear_algebra": ["linear algebra"],
-    "hypothesis_testing": ["hypothesis testing", "a/b testing"],
-    "bayesian": ["bayesian"],
+    "statistics": [
+        "statistics", "statistical", "statistical analysis",
+        "descriptive statistics", "inferential statistics"  
+    ],
+    "probability": ["probability", "probabilistic"],     
+    "linear_algebra": [
+        "linear algebra", "matrix operations",
+        "numpy", "pandas"                                
+    ],
+    "hypothesis_testing": [
+        "hypothesis testing", "a/b testing", "ab testing",
+        "statistical testing", "t-test", "chi-square",
+        "p-value", "significance testing"               
+    ],
+    "bayesian": [
+        "bayesian", "bayes", "bayesian inference",
+        "probabilistic programming"                      
+    ],
 
     # Soft/Process
-    "agile": ["agile", "scrum"],
-    "communication": ["communication skills"],
-    "stakeholder": ["stakeholder"],
+    "agile": ["agile", "scrum", "kanban", "sprint"],    
+    "communication": [
+        "communication skills", "data storytelling",
+        "stakeholder communication"                      
+    ],
+    "stakeholder": [
+        "stakeholder", "stakeholders", "cross-functional"  
+    ],
 }
 
 
@@ -105,7 +193,9 @@ def build_matcher(skills_dict):
 
 
 def extract_skills(description, matcher):
-    doc = nlp.make_doc(description[:50000])  # spaCy limit safeguard
+
+    # we only need tokenization for PhraseMatcher
+    doc = nlp.make_doc(description.lower()[:50000])
     matches = matcher(doc)
     found = set()
     for match_id, start, end in matches:
@@ -121,10 +211,10 @@ def build_feature_matrix(df, matcher):
     for _, row in df.iterrows():
         found = extract_skills(row["description"], matcher)
         skill_vector = {skill: int(skill in found) for skill in skill_keys}
-        skill_vector["job_id"]        = row["job_id"]
-        skill_vector["job_title"]     = row["job_title"]
-        skill_vector["company_name"]  = row["company_name"]
-        skill_vector["role_category"] = row["role_category"]
+        skill_vector["job_id"]           = row["job_id"]
+        skill_vector["job_title"]        = row["job_title"]
+        skill_vector["company_name"]     = row["company_name"]
+        skill_vector["role_category"]    = row["role_category"]
         skill_vector["experience_level"] = row.get("experience_level", "")
         rows.append(skill_vector)
 
@@ -135,15 +225,15 @@ def build_feature_matrix(df, matcher):
 
 if __name__ == "__main__":
     print("Loading data...")
-    df = pd.read_csv(r"/Users/kishorekumar/Desktop/skillgap analysis/data/raw/ml_jobs.csv")
+    
+    df = pd.read_csv("data/raw/ml_jobs.csv")
 
     print("Building matcher...")
     matcher = build_matcher(SKILLS)
 
-    print("Extracting skills from 1,570 job descriptions...")
+    print("Extracting skills from job descriptions...")
     features_df = build_feature_matrix(df, matcher)
 
-    # ── Quick EDA ──────────────────────────────────────────────────
     skill_cols = list(SKILLS.keys())
     skill_counts = features_df[skill_cols].sum().sort_values(ascending=False)
 
@@ -158,6 +248,7 @@ if __name__ == "__main__":
         for skill, count in top.items():
             print(f"    {skill}: {count}/{len(role_df)}")
 
-    features_df.to_csv(r"/Users/kishorekumar/Desktop/skillgap analysis/data/processed/ml_job_features.csv", index=False,)
-    print(f"\nSaved to data/processed/ml_jobs_features.csv")
+    
+    features_df.to_csv("data/processed/ml_job_features.csv", index=False)
+    print(f"\nSaved to data/processed/ml_job_features.csv")
     print(f"Shape: {features_df.shape}")
