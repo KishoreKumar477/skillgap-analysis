@@ -256,6 +256,22 @@ def analyze():
 
         vector, found_skills = text_to_vector(text)
         input_quality, warning = assess_input_quality(text, found_skills)
+        
+        # ── Input Quality Gate ────────────────────────────────────
+        # ADDED: block prediction on garbage input
+        # XGBoost always outputs probabilities even for nonsense
+        # so we must gate before model.predict_proba()
+        
+        if input_quality in ("too_short", "no_skills", "low_signal"):
+            return jsonify({
+                "error":         None,
+                "blocked":       True,
+                "input_quality": input_quality,
+                "warning":       warning,
+                "skill_count":   len(found_skills),
+            }), 200
+        # ── End Quality Gate ──────────────────────────────────────
+
         proba = model.predict_proba([vector])[0]
         pred_idx = int(np.argmax(proba))
         pred_role = le.classes_[pred_idx]
@@ -295,7 +311,9 @@ def analyze():
             "recommendations": recommendations,
             "role_info":       ROLE_INFO,
             "Input_quality":   input_quality, 
-            "warning":         warning
+            "warning":         warning,
+            "input_quality":   "ok",      
+            "warning":         None,
         })
     except Exception as e:
         print(f"DEBUG ERROR: {e}") 
