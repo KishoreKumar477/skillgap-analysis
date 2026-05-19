@@ -35,6 +35,21 @@ SKILL_COLS = [c for c in features_df.columns if c not in [
     "role_category", "experience_level", "url"
 ]]
 print(f"Loaded {len(SKILL_COLS)} skill columns from training data")
+
+# used in UI to show "required in X% of ML Engineer postings"
+skill_rarity = {}
+skill_prevalence = {}
+for skill in SKILL_COLS:
+    if skill in features_df.columns:
+        prevalence = round(float(features_df[skill].mean()) * 100, 1)
+        skill_prevalence[skill] = prevalence
+        if prevalence < 10:
+            skill_rarity[skill] = "rare"
+        elif prevalence < 30:
+            skill_rarity[skill] = "uncommon"
+        else:
+            skill_rarity[skill] = "common"
+
 # ── Load Artifacts ────────────────────────────────────────────────
 model = xgb.XGBClassifier()
 model.load_model(os.path.join(BASE, "data/processed/xgb_model.json"))
@@ -151,6 +166,27 @@ ROLE_CORE_SKILLS = {
     "ml_engineer":    ["python", "pytorch", "tensorflow", "deep_learning", "machine_learning", "docker", "mlflow"],
     "ai_engineer":    ["python", "llm", "generative_ai", "rag", "huggingface", "pytorch"],
     "mlops_engineer": ["python", "mlflow", "docker", "kubernetes", "cicd", "aws", "terraform"],
+}
+
+ROLE_OVERLAPS = {
+    ("data_scientist", "ml_engineer"):
+        "These roles share Python, statistics, and ML frameworks. "
+        "The distinction is research depth (DS) vs deployment focus (MLE).",
+    ("ml_engineer", "data_scientist"):
+        "These roles share Python, statistics, and ML frameworks. "
+        "The distinction is research depth (DS) vs deployment focus (MLE).",
+    ("data_engineer", "mlops_engineer"):
+        "Both are infrastructure-focused. "
+        "MLOps adds model lifecycle management on top of data engineering.",
+    ("mlops_engineer", "data_engineer"):
+        "Both are infrastructure-focused. "
+        "MLOps adds model lifecycle management on top of data engineering.",
+    ("data_analyst", "data_scientist"):
+        "Data Analysts focus on reporting and BI. "
+        "Data Scientists build predictive models. SQL vs Python is the key split.",
+    ("data_scientist", "data_analyst"):
+        "Data Analysts focus on reporting and BI. "
+        "Data Scientists build predictive models. SQL vs Python is the key split.",
 }
 
 LEARNING_RESOURCES = {
@@ -281,6 +317,20 @@ def analyze():
             le.classes_[i]: round(float(proba[i]) * 100, 1)
             for i in range(len(le.classes_))
         }
+        # ADDED: check if second highest role is within 10% of top prediction
+        # if so, show overlap explanation to user
+        sorted_roles = sorted(role_scores.items(), key=lambda x: x[1], reverse=True)
+        overlap_msg = None
+        if len(sorted_roles) >= 2:
+            top_role   = sorted_roles[0][0]
+            second_role = sorted_roles[1][0]
+            gap = sorted_roles[0][1] - sorted_roles[1][1]
+            if gap < 10:
+                overlap_msg = ROLE_OVERLAPS.get(
+                    (top_role, second_role),
+                    f"{top_role} and {second_role} share overlapping skill sets."
+                )
+
 
         # Skill gap
         core = ROLE_CORE_SKILLS[target_role]
@@ -314,6 +364,8 @@ def analyze():
             "warning":         warning,
             "input_quality":   "ok",      
             "warning":         None,
+            "skill_prevalence": {s: skill_prevalence.get(s, 0) for s in missing},
+            "overlap_message": overlap_msg,
         })
     except Exception as e:
         print(f"DEBUG ERROR: {e}") 
