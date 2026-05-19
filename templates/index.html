@@ -770,7 +770,46 @@ async function analyze() {
   try {
     const res = await fetch('/analyze', { method: 'POST', body: formData });
     const data = await res.json();
+    
     if (data.error) throw new Error(data.error);
+      
+    // CHANGED: handle blocked predictions
+    if (data.blocked) {
+      document.getElementById('resultsPanel').innerHTML = `
+        <div style="
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1rem;
+          text-align: center;
+          padding: 2rem;
+        ">
+          <div style="font-size: 2rem; opacity: 0.4;">⚠</div>
+          <div style="
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--amber);
+            letter-spacing: 0.05em;
+          ">${data.warning}</div>
+          <div style="
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--muted);
+            max-width: 300px;
+            line-height: 1.6;
+          ">
+            ${data.skill_count === 0 
+              ? 'No recognizable technical skills found. Try pasting a resume with explicit tool names like Python, SQL, PyTorch.'
+              : `Only ${data.skill_count} skill(s) detected. Add more technical detail for a reliable prediction.`
+            }
+          </div>
+        </div>
+      `;
+      return;
+    }
+    
     renderResults(data);
   } catch(e) {
     err.textContent = 'ERROR: ' + e.message;
