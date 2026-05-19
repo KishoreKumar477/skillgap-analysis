@@ -51,8 +51,14 @@ for skill in SKILL_COLS:
             skill_rarity[skill] = "common"
 
 # ── Load Artifacts ────────────────────────────────────────────────
-model = xgb.XGBClassifier()
-model.load_model(os.path.join(BASE, "data/processed/xgb_model.json"))
+# CHANGED: load calibrated model (pickle) instead of raw xgboost json
+# calibrated model gives reliable probabilities — not overconfident
+with open("data/processed/xgb_model_calibrated.pkl", "rb") as f:
+    model = pickle.load(f)
+
+# raw model kept separately — only used if you add SHAP to flask later
+xgb_model_raw = xgb.XGBClassifier()
+xgb_model_raw.load_model("data/processed/xgb_model.json")
 
 with open(os.path.join(BASE, "data/processed/label_encoder.pkl"), "rb") as f:
     le = pickle.load(f)
