@@ -3,6 +3,19 @@ import spacy
 from spacy.matcher import PhraseMatcher
 
 nlp = spacy.load("en_core_web_sm")
+# ── Data Leakage Audit ────────────────────────────────────────────
+# Q: Could role_category leak into features?
+# A: No. Features are extracted from description text only.
+#    role_category is derived from job_title, not description.
+#    Titles are dropped before feature extraction.
+#
+# Q: Could company name leak signal?
+# A: Possible — "Google" correlates with ML roles.
+#    Mitigation: company_name excluded from feature matrix.
+#
+# Q: Temporal leakage?
+# A: Dataset has no temporal ordering applied.
+#    Future improvement: train on older postings, test on newer.
 
 # ── Master Skills List ─────────────────────────────────────────────
 # Each key must exactly match what train.py and flask_app.py expect
